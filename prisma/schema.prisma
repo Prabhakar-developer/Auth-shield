@@ -174,3 +174,24 @@ model AuditLog {
 
   user Users? @relation(fields: [userId], references: [uuid], onDelete: Cascade)
 }
+
+// for example
+model Memo {
+  id         Int        @id @default(autoincrement())
+  title      String
+  content    String?
+  categories Category[]
+  updatedAt  DateTime   @default(now())
+  createdAt  DateTime   @default(now())
+
+  @@map("memo")
+}
+
+model Category {
+  id     Int    @id @default(autoincrement())
+  name   String
+  Memo   Memo?  @relation(fields: [memoId], references: [id])
+  memoId Int?
+
+  @@map("category")
+}
