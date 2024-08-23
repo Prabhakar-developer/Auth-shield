@@ -10,22 +10,158 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Memo {
-  id         Int        @id @default(autoincrement())
-  title      String
-  content    String?
-  categories Category[]
-  updatedAt  DateTime   @default(now())
-  createdAt  DateTime   @default(now())
-
-  @@map("memo")
+enum IsActive {
+  ACTIVE
+  INACTIVE
 }
 
-model Category {
-  id     Int    @id @default(autoincrement())
-  name   String
-  Memo   Memo?  @relation(fields: [memoId], references: [id])
-  memoId Int?
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
 
-  @@map("category")
+enum VerificationMethod {
+  EMAIL
+  PHONE
+}
+
+model Users {
+  uuid          String       @id @unique @default(uuid()) @db.VarChar(255)
+  username      String       @unique @db.VarChar(255)
+  email         String       @unique @db.VarChar(255)
+  password_hash String       @db.VarChar(255)
+  first_name    String?      @db.VarChar(255)
+  last_name     String?      @db.VarChar(255)
+  is_active     IsActive     @default(ACTIVE)
+  created_at    DateTime     @default(now())
+  created_by    String       @default("STORE UUID") @db.VarChar(255)
+  updated_at    DateTime     @default(now()) @updatedAt
+  updated_by    String?      @default("STORE UUID") @db.VarChar(255)
+  deleted_at    DateTime?    @default(now())
+  deleted_by    String?      @default("STORE UUID") @db.VarChar(255)
+  
+  @@index([email])
+  @@index([username])
+  @@index([is_active])
+}
+
+model User_Profiles {
+  id             Int         @id @default(autoincrement())
+  user_id        String      @db.VarChar(255)
+  phone_number   String?     @unique @db.VarChar(20)
+  address        String?     @db.Text
+  profile_picture String?    @db.VarChar(255)
+  bio            String?     @db.Text
+  date_of_birth  DateTime?
+  gender         Gender?
+  created_at     DateTime    @default(now())
+  updated_at     DateTime    @default(now()) @updatedAt
+  
+  user           Users       @relation(fields: [user_id], references: [uuid], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+model Roles {
+  id          Int           @id @default(autoincrement())
+  name        String        @unique @db.VarChar(255)
+  description String?       @db.Text
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @default(now()) @updatedAt
+}
+
+model Permissions {
+  id          Int           @id @default(autoincrement())
+  name        String        @unique @db.VarChar(255)
+  description String?       @db.Text
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @default(now()) @updatedAt
+}
+
+model User_Roles {
+  user_id     String        @db.VarChar(255)
+  role_id     Int
+  
+  assigned_at DateTime       @default(now())
+
+  user        Users          @relation(fields: [user_id], references: [uuid], onDelete: Cascade)
+  role        Roles          @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, role_id])
+  @@index([user_id, role_id])
+}
+
+model Role_Permissions {
+  role_id      Int
+  permission_id Int
+  
+  assigned_at  DateTime      @default(now())
+
+  role         Roles         @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  permission   Permissions   @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+
+  @@id([role_id, permission_id])
+  @@index([role_id, permission_id])
+}
+
+model Account_Verifications {
+  id             Int         @id @default(autoincrement())
+  user_id        String      @db.VarChar(255)
+  method         VerificationMethod
+  email          String?     @db.VarChar(255)
+  phone_number   String?     @db.VarChar(20)
+  verification_code String   @unique @db.VarChar(255)
+  expires_at     DateTime
+  verified       Boolean     @default(false)
+  created_at     DateTime    @default(now())
+  updated_at     DateTime    @default(now()) @updatedAt
+  
+  user           Users       @relation(fields: [user_id], references: [uuid], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([verification_code])
+}
+
+model Activity_Logs {
+  id          Int           @id @default(autoincrement())
+  user_id     String        @db.VarChar(255)
+  activity    String        @db.VarChar(255)
+  details     String?       @db.Text
+  ip_address  String?       @db.VarChar(45)
+  user_agent  String?       @db.Text
+  created_at  DateTime      @default(now())
+
+  user        Users         @relation(fields: [user_id], references: [uuid], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([created_at])
+}
+
+model Sessions {
+  id          Int           @id @default(autoincrement())
+  user_id     String        @db.VarChar(255)
+  session_token String      @unique @db.VarChar(255)
+  ip_address  String?       @db.VarChar(45)
+  user_agent  String?       @db.Text
+  created_at  DateTime      @default(now())
+  expires_at  DateTime?
+  is_active   IsActive      @default(ACTIVE)
+
+  user        Users         @relation(fields: [user_id], references: [uuid], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([session_token])
+  @@index([expires_at])
+}
+
+model AuditLog {
+  id         Int           @id @default(autoincrement())
+  tableName  String
+  operation  String
+  userId     String?       @db.VarChar(255)
+  timestamp  DateTime      @default(now())
+  changes    Json
+
+  user       Users?        @relation(fields: [userId], references: [uuid], onDelete: Cascade)
 }

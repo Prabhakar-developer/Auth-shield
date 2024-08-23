@@ -10,7 +10,7 @@ import { ExceptionsFilter } from './common';
 import { CommonModule } from './common/common.module';
 import { configuration, loggerOptions } from './config';
 import { SampleModule } from './sample/sample.module';
-import { UserModule } from './user';
+// import { UserModule } from './user';
 
 @Module({
   imports: [

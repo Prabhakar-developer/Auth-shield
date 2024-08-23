@@ -13,7 +13,7 @@ export async function middleware(app: NestFastifyApplication): Promise<INestAppl
   await app.register(cookie);
   await app.register(session, {
     // Requires 'store' setup for production
-    secret: process.env.sessiionSecret,
+    secret: `nEsTjS-pRoJeCt-PeRfOrMaNcE-tEsTeD`,
     rolling: true,
     saveUninitialized: true,
     cookie: { secure: isProduction },
