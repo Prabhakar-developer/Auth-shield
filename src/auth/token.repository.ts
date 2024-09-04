@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Sessions } from '.prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
@@ -7,7 +6,7 @@ import { PrismaService } from 'nestjs-prisma';
 export class TokenRepository {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly configService: ConfigService,
+    // private readonly configService: ConfigService,
   ) {}
 
   getAccessToken(accessToken: string): Promise<Sessions | null> {
@@ -26,6 +25,7 @@ export class TokenRepository {
       where: {
         user_id: userId,
         session_token: accessToken,
+        is_active: 'ACTIVE'
       },
     });
   }
@@ -48,8 +48,7 @@ export class TokenRepository {
     ip_address: string,
     accessToken: string,
   ): Promise<Sessions> {
-    const jwtConfig = this.configService.get('jwt');
-    const expiredAt = new Date(Date.now() + jwtConfig.jwtExpAccessToken);
+    const expiredAt = new Date(Date.now() + 1000 * 60 * 5);
 
     return this.prisma.sessions.create({
       data: {

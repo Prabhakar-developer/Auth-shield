@@ -9,10 +9,8 @@ import { AuthModule } from './auth/auth.module';
 import { ExceptionsFilter } from './common';
 import { CommonModule } from './common/common.module';
 import { configuration, loggerOptions } from './config';
-import { SampleModule } from './sample/sample.module';
 import HealthModule from './health/health.module';
-// import { UserModule } from './user';
-
+import { UserModule } from './user';
 @Module({
   imports: [
     LoggerModule.forRoot(loggerOptions),
@@ -30,7 +28,7 @@ import HealthModule from './health/health.module';
           ...config.get('prismaOptions'),
           datasources: {
             db: {
-              url: config.getOrThrow('DATABASE_URL'),
+              url: `file:${__dirname}/../prisma/dev.db`,
             },
           },
         },
@@ -39,9 +37,8 @@ import HealthModule from './health/health.module';
     }),
     CommonModule,
     AuthModule,
-    SampleModule,
-    HealthModule
-    // UserModule,
+    HealthModule,
+    UserModule
   ],
   providers: [
     {

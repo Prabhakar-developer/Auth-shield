@@ -6,46 +6,31 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
-}
-
-enum IsActive {
-  ACTIVE
-  INACTIVE
-}
-
-enum Gender {
-  MALE
-  FEMALE
-  OTHER
-}
-
-enum VerificationMethod {
-  EMAIL
-  PHONE
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model Users {
-  uuid                  String                  @id @unique @default(uuid()) @db.VarChar(255)
-  username              String                  @unique @db.VarChar(255)
-  email                 String                  @unique @db.VarChar(255)
-  password_hash         String                  @db.VarChar(255)
-  first_name            String?                 @db.VarChar(255)
-  last_name             String?                 @db.VarChar(255)
-  is_active             IsActive                @default(ACTIVE)
+  uuid                  String                  @id @unique @default(uuid())
+  username              String                  @unique
+  email                 String                  @unique
+  password_hash         String
+  first_name            String?
+  last_name             String?
+  is_active             String                  @default("ACTIVE")
   created_at            DateTime                @default(now())
-  created_by            String                  @default("STORE UUID") @db.VarChar(255)
-  updated_at            DateTime                @default(now()) @updatedAt
-  updated_by            String?                 @default("STORE UUID") @db.VarChar(255)
-  deleted_at            DateTime?               @default(now())
-  deleted_by            String?                 @default("STORE UUID") @db.VarChar(255)
+  created_by            String                  @default("STORE UUID")
+  updated_at            DateTime?               @updatedAt
+  updated_by            String?
+  deleted_at            DateTime?
+  deleted_by            String?
   User_Profiles         User_Profiles[]
   User_Roles            User_Roles[]
   Account_Verifications Account_Verifications[]
   Activity_Logs         Activity_Logs[]
   Sessions              Sessions[]
   AuditLog              AuditLog[]
+  PasswordReset         PasswordReset[]         @relation("UserPasswordReset")
 
   @@index([email])
   @@index([username])
@@ -54,13 +39,13 @@ model Users {
 
 model User_Profiles {
   id              Int       @id @default(autoincrement())
-  user_id         String    @db.VarChar(255)
-  phone_number    String?   @unique @db.VarChar(20)
-  address         String?   @db.Text
-  profile_picture String?   @db.VarChar(255)
-  bio             String?   @db.Text
+  user_id         String
+  phone_number    String?   @unique
+  address         String?
+  profile_picture String?
+  bio             String?
   date_of_birth   DateTime?
-  gender          Gender?
+  gender          String?
   created_at      DateTime  @default(now())
   updated_at      DateTime  @default(now()) @updatedAt
 
@@ -71,8 +56,8 @@ model User_Profiles {
 
 model Roles {
   id               Int                @id @default(autoincrement())
-  name             String             @unique @db.VarChar(255)
-  description      String?            @db.Text
+  name             String             @unique
+  description      String?
   created_at       DateTime           @default(now())
   updated_at       DateTime           @default(now()) @updatedAt
   User_Roles       User_Roles[]
@@ -81,15 +66,15 @@ model Roles {
 
 model Permissions {
   id               Int                @id @default(autoincrement())
-  name             String             @unique @db.VarChar(255)
-  description      String?            @db.Text
+  name             String             @unique
+  description      String?
   created_at       DateTime           @default(now())
   updated_at       DateTime           @default(now()) @updatedAt
   Role_Permissions Role_Permissions[]
 }
 
 model User_Roles {
-  user_id String @db.VarChar(255)
+  user_id String
   role_id Int
 
   assigned_at DateTime @default(now())
@@ -115,16 +100,16 @@ model Role_Permissions {
 }
 
 model Account_Verifications {
-  id                Int                @id @default(autoincrement())
-  user_id           String             @db.VarChar(255)
-  method            VerificationMethod
-  email             String?            @db.VarChar(255)
-  phone_number      String?            @db.VarChar(20)
-  verification_code String             @unique @db.VarChar(255)
+  id                Int      @id @default(autoincrement())
+  user_id           String
+  method            String
+  email             String?
+  phone_number      String?
+  verification_code String   @unique
   expires_at        DateTime
-  verified          Boolean            @default(false)
-  created_at        DateTime           @default(now())
-  updated_at        DateTime           @default(now()) @updatedAt
+  verified          Boolean  @default(false)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @default(now()) @updatedAt
 
   user Users @relation(fields: [user_id], references: [uuid], onDelete: Cascade)
 
@@ -134,11 +119,11 @@ model Account_Verifications {
 
 model Activity_Logs {
   id         Int      @id @default(autoincrement())
-  user_id    String   @db.VarChar(255)
-  activity   String   @db.VarChar(255)
-  details    String?  @db.Text
-  ip_address String?  @db.VarChar(45)
-  user_agent String?  @db.Text
+  user_id    String
+  activity   String
+  details    String?
+  ip_address String?
+  user_agent String?
   created_at DateTime @default(now())
 
   user Users @relation(fields: [user_id], references: [uuid], onDelete: Cascade)
@@ -149,13 +134,13 @@ model Activity_Logs {
 
 model Sessions {
   id            Int       @id @default(autoincrement())
-  user_id       String    @db.VarChar(255)
-  session_token String    @unique @db.VarChar(255)
-  ip_address    String?   @db.VarChar(45)
-  user_agent    String?   @db.Text
+  user_id       String
+  session_token String    @unique
+  ip_address    String?
+  user_agent    String?
   created_at    DateTime  @default(now())
   expires_at    DateTime?
-  is_active     IsActive  @default(ACTIVE)
+  is_active     String    @default("ACTIVE")
 
   user Users @relation(fields: [user_id], references: [uuid], onDelete: Cascade)
 
@@ -168,30 +153,23 @@ model AuditLog {
   id        Int      @id @default(autoincrement())
   tableName String
   operation String
-  userId    String?  @db.VarChar(255)
+  userId    String?
   timestamp DateTime @default(now())
-  changes   Json
+  changes   String // String instead of Json
 
   user Users? @relation(fields: [userId], references: [uuid], onDelete: Cascade)
 }
 
-// for example
-model Memo {
-  id         Int        @id @default(autoincrement())
-  title      String
-  content    String?
-  categories Category[]
-  updatedAt  DateTime   @default(now())
-  createdAt  DateTime   @default(now())
+model PasswordReset {
+  id          Int      @id @default(autoincrement())
+  user_id     String
+  otp         String   @unique
+  expires_at  DateTime
+  is_verified Boolean  @default(false)
+  created_at  DateTime @default(now())
 
-  @@map("memo")
-}
+  user Users @relation(fields: [user_id], references: [uuid], onDelete: Cascade, name: "UserPasswordReset")
 
-model Category {
-  id     Int    @id @default(autoincrement())
-  name   String
-  Memo   Memo?  @relation(fields: [memoId], references: [id])
-  memoId Int?
-
-  @@map("category")
+  @@index([user_id])
+  @@index([otp])
 }

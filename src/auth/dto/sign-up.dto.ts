@@ -9,19 +9,14 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class SignUpDto {
   @ApiProperty({ type: String })
+  @IsString()
+  @IsNotEmpty()
+  readonly username!: string;
+
+  @ApiProperty({ type: String })
   @IsEmail()
   @IsNotEmpty()
   readonly email!: string;
-
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  @IsNotEmpty()
-  readonly firstName!: string;
-
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  @IsNotEmpty()
-  readonly lastName!: string;
 
   @ApiProperty({ type: String, default: 'string!12345' })
   @IsString()
@@ -33,4 +28,14 @@ export class SignUpDto {
   @Matches(/[a-zA-Z]/, { message: 'password must contain at least one letter' })
   @Matches(/^\S+$/, { message: 'password must not contain spaces' })
   readonly password!: string;
+
+  @ApiPropertyOptional({ type: String })
+  @IsString()
+  @IsNotEmpty()
+  readonly first_name!: string;
+
+  @ApiPropertyOptional({ type: String })
+  @IsString()
+  @IsNotEmpty()
+  readonly last_name!: string;
 }

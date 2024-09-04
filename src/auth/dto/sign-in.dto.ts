@@ -5,7 +5,7 @@ export class SignInDto {
   @ApiProperty({ type: String })
   @IsEmail()
   @IsNotEmpty()
-  readonly email!: string;
+  readonly username!: string;
 
   @ApiProperty({ type: String, default: 'string!12345' })
   @IsString()
