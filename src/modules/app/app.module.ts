@@ -1,16 +1,20 @@
-import { Module, ValidationPipe } from '@nestjs/common';
+import { Logger, Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { LoggerModule } from 'nestjs-pino';
 import { PrismaModule } from 'nestjs-prisma';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 
-import { AuthModule } from './auth/auth.module';
-import { ExceptionsFilter } from './common';
-import { CommonModule } from './common/common.module';
-import { configuration, loggerOptions } from './config';
-import HealthModule from './health/health.module';
-import { UserModule } from './user';
+import { AuthModule } from '@modules/auth/auth.module';
+import { HealthModule } from '@modules/health/health.module';
+import { UserModule } from '@modules/user/user.module';
+import { ExceptionsFilter } from '../../common';
+import { CommonModule } from '../../common/common.module';
+import { configuration, loggerOptions } from '../../config';
+
+console.log(`${__dirname}/../../../prisma/dev.db`);
+
 @Module({
   imports: [
     LoggerModule.forRoot(loggerOptions),
@@ -28,19 +32,33 @@ import { UserModule } from './user';
           ...config.get('prismaOptions'),
           datasources: {
             db: {
-              url: `file:${__dirname}/../prisma/dev.db`,
+              url: `file:${__dirname}/../../../prisma/dev.db`,
             },
           },
         },
       }),
       inject: [ConfigService],
     }),
+    JwtModule.registerAsync({
+      global: true,
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => {
+        const logger = new Logger('JwtModule'); 
+        logger.log('Initializing JWT configuration');
+        return {
+          secret: configService.get<string>('JWT_SECRET'),
+          signOptions: { expiresIn: '1d' },
+        };
+      },
+      inject: [ConfigService],
+    }),
     CommonModule,
     AuthModule,
     HealthModule,
-    UserModule
+    UserModule,
   ],
   providers: [
+    JwtService,
     {
       provide: APP_FILTER,
       useClass: ExceptionsFilter,
@@ -53,5 +71,6 @@ import { UserModule } from './user';
       }),
     },
   ],
+  controllers: [],
 })
 export class AppModule {}

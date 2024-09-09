@@ -22,7 +22,13 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": "./",
+    "paths": {
+      "@modules/*": ["src/modules/*"],
+      "@common/*": ["src/common/*"],
+      "@dto/*": ["src/dto/*"],
+    }
   },
   "include": ["typings/global.d.ts", "src/**/*", "test/**/*"],
   "exclude": ["node_modules"]

@@ -2,10 +2,10 @@ import {
   IsString,
   IsEmail,
   IsNotEmpty,
-  Length,
-  Matches,
+  Validate,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { PasswordPatternConstraint } from '@modules/password-management/validator-constraint/password-pattern.constraint';
 
 export class SignUpDto {
   @ApiProperty({ type: String })
@@ -18,15 +18,9 @@ export class SignUpDto {
   @IsNotEmpty()
   readonly email!: string;
 
-  @ApiProperty({ type: String, default: 'string!12345' })
+  @ApiProperty({ type: String, default: 'String!12345' })
   @IsString()
-  @Length(6, 20)
-  @Matches(/[\d\W]/, {
-    message:
-      'password must contain at least one digit and/or special character',
-  })
-  @Matches(/[a-zA-Z]/, { message: 'password must contain at least one letter' })
-  @Matches(/^\S+$/, { message: 'password must not contain spaces' })
+  // @Validate(PasswordPatternConstraint)
   readonly password!: string;
 
   @ApiPropertyOptional({ type: String })

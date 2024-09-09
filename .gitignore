@@ -1,41 +1,68 @@
-# compiled output
-/dist
+# Node modules
 /node_modules
-/prisma/migration
 
-# Logs
-logs
+# Environment files
+.env
+.env.*
+
+# Build output
+/dist
+/build
+
+# TypeScript output
+/*.js
+/*.d.ts
+
+# Log files
 *.log
 npm-debug.log*
-pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-lerna-debug.log*
 
-# OS
+# Operating system files
 .DS_Store
+Thumbs.db
 
-# Env
-.env
+# IDE and editor specific files
+.vscode/
+.idea/
 
-# Tests
+# Coverage reports
 /coverage
-/.nyc_output
 
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
+# Dependency directories
+/.pnp
+.pnp.js
 
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+# Optional lock files
+package-lock.json
+yarn.lock
 
-.adminjs
+# Temporary files
+*.tmp
+*.swp
+*.swo
+
+# Cache directories
+/.cache
+
+# Local configuration files
+*.local
+*.env.local
+
+# Miscellaneous
+*.tgz
+*.gz
+*.zip
+
+# Ignore test artifacts
+*.test.js
+*.spec.js
+
+# Ignore NestJS specific build artifacts
+*.tsbuildinfo
+
+# Prisma specific
+/prisma/migrations
+/prisma/dev.db
+/.prisma/

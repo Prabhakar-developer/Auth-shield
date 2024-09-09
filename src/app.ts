@@ -2,9 +2,9 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Logger as PinoLogger, LoggerErrorInterceptor } from 'nestjs-pino';
-
-import { middleware } from './app.middleware';
-import { AppModule } from './app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { middleware } from '@modules/app/app.middleware';
+import { AppModule } from '@modules/app/app.module';
 import { genReqId } from './config';
 
 async function bootstrap(): Promise<string> {
@@ -27,6 +27,22 @@ async function bootstrap(): Promise<string> {
 
   // Fastify Middleware
   await middleware(app);
+
+  // Swagger setup
+  const options = new DocumentBuilder()
+    .setTitle(`Auth-Shield API's`)
+    .setDescription('This is Auth-Shield API documentation.')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, options);
+   // Swagger UI setup with customization to hide schemas
+   SwaggerModule.setup('api', app, document, {
+    swaggerOptions: {
+      defaultModelsExpandDepth: -1, // This hides the models (schemas) section
+    },
+  });
 
   app.enableShutdownHooks();
   await app.listen(process.env.PORT || 3000);

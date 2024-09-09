@@ -4,7 +4,7 @@ import { Test } from '@nestjs/testing';
 import supertest from 'supertest';
 import { afterAll, beforeAll, expect, test } from 'vitest';
 
-import { AppModule } from '../../src/app.module';
+import { AppModule } from '../../src/modules/app/app.module';
 
 let app: NestFastifyApplication | undefined;
 let request: supertest.Agent;

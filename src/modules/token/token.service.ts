@@ -6,9 +6,10 @@ import { TokenRepository } from './token.repository';
 import { Sessions } from '@prisma/client';
 import { AccessTokens } from './interfaces/access-token';
 
+
 @Injectable()
 export class TokenService {
-  private readonly saltRounds = 10;
+    private readonly saltRounds = 10;
   private readonly logger: Logger = new Logger(TokenService.name);
 
 

@@ -7,6 +7,11 @@ export class CreateUserDto {
     @ApiProperty({ type: String })
     @IsString()
     @IsNotEmpty()
+    readonly uuid!: string;
+    
+    @ApiProperty({ type: String })
+    @IsString()
+    @IsNotEmpty()
     readonly username!: string;
 
     @IsEmail()
@@ -16,13 +21,21 @@ export class CreateUserDto {
     @IsString()
     @MinLength(6)
     @IsNotEmpty()
-    readonly password!: string;
+    readonly password_hash!: string;
 
     @IsString()
-    readonly firstName?: string;
+    readonly first_name?: string;
 
     @IsString()
-    readonly lastName?: string;
+    readonly last_name?: string;
+
+    @IsString()
+    @IsNotEmpty()
+    is_active!: string;
+
+    @IsString()
+    @IsNotEmpty()
+    created_by!: string;
 }
 
 

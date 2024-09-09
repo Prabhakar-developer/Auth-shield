@@ -45,7 +45,6 @@ export class UserRepository {
     }
     
     return null
-    // return this.prisma.users.findFirst(params);
   }
 
   /**
